@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
-function BasicExample() {
+function Login() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ email: '', password: '' });
 
@@ -12,19 +12,48 @@ function BasicExample() {
         setFormData((prevData) => ({ ...prevData, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Check if the provided credentials are correct
-        if (formData.email === 'user@superadmin' && formData.password === 'superadmin123') {
-            // Redirect to the dashboard page for superadmin
-            navigate('/dashboard/superadmin');
-        } else if (formData.email === 'user@admin' && formData.password === 'admin123') {
-            // Redirect to the dashboard/admin page for admin
-            navigate('/dashboard/admin');
-        } else {
-            alert('Invalid credentials');
+        try {
+            // Send a POST request to the server's authentication endpoint
+            const response = await fetch('http://localhost:3001/api/authenticate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                // Authentication successful, redirect to the appropriate dashboard based on user role
+                const userData = await response.json();
+                const { role } = userData;
+                
+                if (role === 'superadmin') {
+                    navigate('/dashboard/superadmin');
+                } else if (role === 'admin') {
+                    navigate('/dashboard/admin');
+                }
+                else if (role === 'user') {
+                    navigate('/dashboard/user');
+                }
+                 else {
+                    // Handle other roles or scenarios as needed
+                    alert('Invalid user role');
+                }
+            } else {
+                alert('Invalid credentials');
+            }
+        } catch (error) {
+            console.error('Error during authentication:', error);
+            alert('Authentication failed. Please try again.');
         }
+    };
+
+    const handleSignUp = () => {
+        // Navigate to the signup page
+        navigate('/signup');
     };
 
     return (
@@ -63,9 +92,12 @@ function BasicExample() {
                 <Button variant="primary" type="submit">
                     Submit
                 </Button>
+                <Button variant="primary" className='mx-5' onClick={handleSignUp}>
+                    Sign up
+                </Button>
             </Form>
         </>
     );
 }
 
-export default BasicExample;
+export default Login;

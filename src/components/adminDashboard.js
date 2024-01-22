@@ -53,6 +53,8 @@ const UserFoodForm = () => {
         setFoodDataList(newFoodDataList);
     };
 
+    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
