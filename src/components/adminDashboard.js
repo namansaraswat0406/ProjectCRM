@@ -1,275 +1,122 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
-import axios from 'axios';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
-const UserFoodForm = () => {
-    const [userData, setUserData] = useState({
-        username: '',
-        firstName: '',
-        lastName: '',
-        email: '',
-        age: '',
-        gender: '',
-        address: '',
-        phoneNumber: '',
+const ProjectForm = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    project_name: '',
+    food_name: '',
+    food_type: '',
+    calories: '',
+    image_url: '',
+    user_id: '1', // Set a default role
+  });
 
-        registrationDate: '',
-        role: '',
-    });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
 
-    const [foodDataList, setFoodDataList] = useState([
-        {
-            foodName: '',
-            category: '',
-            calories: '',
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-            imageUrl: '',
+    try {
+      // Send a POST request to the /api/users endpoint with the registration data
+      const response = await fetch('http://localhost:3001/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-    ]);
+        body: JSON.stringify(formData),
+      });
 
-    const [userDataFromServer, setUserDataFromServer] = useState(null);
+      if (response.ok) {
+        // Registration successful, navigate to login page
+        navigate('/');
+      } else {
+        const data = await response.json();
+        alert(`Registration failed: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error registering user:', error);
+      alert('Registration failed. Please try again.');
+    }
+  };
 
-    const handleUserChange = (e) => {
-        setUserData({ ...userData, [e.target.name]: e.target.value });
-    };
+  return (
+    <>
+      <h2>Project Details</h2>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="first_name">
+          <Form.Label>Project Name</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter Project name"
+            name="project_name"
+            value={formData.project_name}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-    const handleFoodChange = (e, index) => {
-        const { name, value, type, checked } = e.target;
-        const newFoodDataList = [...foodDataList];
-        newFoodDataList[index] = {
-            ...newFoodDataList[index],
-            [name]: type === 'checkbox' ? checked : value,
-        };
-        setFoodDataList(newFoodDataList);
-    };
+        <Form.Group controlId="last_name">
+          <Form.Label>Food Name</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter Food name"
+            name="food_name"
+            value={formData.food_name}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-    const handleAddFood = () => {
-        setFoodDataList([...foodDataList, { /* Initial food details for a new entry */ }]);
-    };
+        <Form.Group controlId="email">
+          <Form.Label>Food Type</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter Food Type"
+            name="food_type"
+            value={formData.food_type}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+        <Form.Group controlId="phone_number">
+          <Form.Label>Calories</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter Calories"
+            name="calories"
+            value={formData.calories}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-    const handleDeleteFood = (index) => {
-        const newFoodDataList = [...foodDataList];
-        newFoodDataList.splice(index, 1);
-        setFoodDataList(newFoodDataList);
-    };
+        <Form.Group controlId="password">
+          <Form.Label>Image</Form.Label>
+          <Form.Control
+            type="file"
+            // placeholder="Enter your password"
+            name="image_url"
+            value={formData.image_url}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+      
 
-    
+     
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        try {
-            // Send user data to the server
-            const userResponse = await axios.post('http://localhost:5000/create_users_table', userData);
-            const userId = userResponse.data.user_id;
-
-            // Send each food entry to the server, using the generated userId
-            await Promise.all(
-                foodDataList.map(async (foodData) => {
-                    await axios.post(`http://localhost:5000/create_food_table/${userId}`, foodData);
-                })
-            );
-
-            // Optionally, you can reset the form or perform other actions after submission
-            setUserData({
-                username: '',
-                firstName: '',
-                lastName: '',
-                email: '',
-                age: '',
-                gender: '',
-                address: '',
-                phoneNumber: '',
-                registrationDate: '',
-                role: '',
-            });
-
-            setFoodDataList([
-                {
-                    foodName: '',
-                    ingredients: '',
-                    calories: '',
-
-                    imageUrl: '',
-                },
-            ]);
-
-            // Fetch user data from the server after adding a new user
-            const response = await axios.get(`http://localhost:5000/get_user_data/${userId}`);
-            setUserDataFromServer(response.data);
-        } catch (error) {
-            console.error('Error submitting form:', error);
-        }
-    };
-
-    useEffect(() => {
-        // Example: Fetch user data for user_id 1
-        const fetchUserData = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/get_user_data/1');
-                setUserDataFromServer(response.data);
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-
-        // Call the fetchUserData function
-        fetchUserData();
-    }, []); // Empty dependency array ensures the effect runs only once
-
-    return (
-        <Container>
-            {/* Display user data from the server */}
-            {userDataFromServer && (
-                <div>
-                    <h3>User Data from Server:</h3>
-                    <pre>{JSON.stringify(userDataFromServer, null, 2)}</pre>
-                </div>
-            )}
-
-            {/* User Information */}
-            <h2>User Information</h2>
-            <Row>
-                <Col>
-                    <Form.Group controlId="username">
-                        <Form.Label>Username:</Form.Label>
-                        <Form.Control type="text" name="username" value={userData.username} onChange={handleUserChange} />
-                    </Form.Group>
-                </Col>
-                <Col>
-                    <Form.Group controlId="firstName">
-                        <Form.Label>First Name:</Form.Label>
-                        <Form.Control type="text" name="firstName" value={userData.firstName} onChange={handleUserChange} />
-                    </Form.Group>
-                </Col>
-                <Col>
-                    <Form.Group controlId="lastName">
-                        <Form.Label>Last Name:</Form.Label>
-                        <Form.Control type="text" name="lastName" value={userData.lastName} onChange={handleUserChange} />
-                    </Form.Group>
-                </Col>
-                <Col>
-                    <Form.Group controlId="email">
-                        <Form.Label>Email:</Form.Label>
-                        <Form.Control type="email" name="email" value={userData.email} onChange={handleUserChange} />
-                    </Form.Group>
-                </Col>
-                <Col>
-                    <Form.Group controlId="age">
-                        <Form.Label>Age:</Form.Label>
-                        <Form.Control type="text" name="age" value={userData.age} onChange={handleUserChange} />
-                    </Form.Group>
-                </Col>
-                <Col>
-                    <Form.Group controlId="gender">
-                        <Form.Label>Gender:</Form.Label>
-                        <Form.Control type="text" name="gender" value={userData.gender} onChange={handleUserChange} />
-                    </Form.Group>
-                </Col>
-                <Col>
-                    <Form.Group controlId="adress">
-                        <Form.Label>address:</Form.Label>
-                        <Form.Control type="text" name="address" value={userData.address} onChange={handleUserChange} />
-                    </Form.Group>
-                </Col>
-                <Col>
-                    <Form.Group controlId="phoneNumber">
-                        <Form.Label>Phone Number:</Form.Label>
-                        <Form.Control type="phone" name="phoneNumber" value={userData.phoneNumber} onChange={handleUserChange} />
-                    </Form.Group>
-                </Col>
-                <Col>
-                    <Form.Group controlId="registrationDate">
-                        <Form.Label>Registration Date:</Form.Label>
-                        <Form.Control type="Date" name="date" value={userData.registrationDate} onChange={handleUserChange} />
-                    </Form.Group>
-                </Col>
-                <Col>
-                    <Form.Group controlId="role">
-                        <Form.Label>Role</Form.Label>
-                        <Form.Control type="text" name="role" value={userData.role} onChange={handleUserChange} />
-                    </Form.Group>
-                </Col>
-                {/* Add other user input fields as needed */}
-                {/* ... */}
-            </Row>
-
-            {/* Food Information */}
-            <h2>Food Information</h2>
-            {foodDataList.map((foodData, index) => (
-                <div key={index}>
-                    <Row>
-                        <Col>
-                            <Form.Group controlId={`foodName${index}`}>
-                                <Form.Label>Food Name:</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="foodName"
-                                    value={foodData.foodName}
-                                    onChange={(e) => handleFoodChange(e, index)}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group controlId={`category${index}`}>
-                                <Form.Label>Category:</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="category"
-                                    value={foodData.category}
-                                    onChange={(e) => handleFoodChange(e, index)}
-                                />
-                            </Form.Group>
-                        </Col>
-
-                        <Col>
-                            <Form.Group controlId={`calories${index}`}>
-                                <Form.Label>Calories:</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="calories"
-                                    value={foodData.calories}
-                                    onChange={(e) => handleFoodChange(e, index)}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group controlId={`calories${index}`}>
-                                <Form.Label>Image:</Form.Label>
-                                <Form.Control
-                                    type="file"
-                                    name="imageUrl"
-                                    value={foodData.imageUrl}
-                                    onChange={(e) => handleFoodChange(e, index)}
-                                />
-                            </Form.Group>
-                        </Col>
-                        {/* Add other food input fields as needed */}
-                        {/* ... */}
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Button variant="danger" onClick={() => handleDeleteFood(index)}>
-                                Delete
-                            </Button>
-                        </Col>
-                    </Row>
-                </div>
-            ))}
-            <Button variant="secondary" onClick={handleAddFood}>
-                Add Food
-            </Button>
-
-            {/* Buttons */}
-            <Row>
-                <Col>
-                    <Button type="submit" onClick={handleSubmit}>
-                        Submit
-                    </Button>
-                </Col>
-            </Row>
-        </Container>
-    );
+        <Button variant="primary" type="submit">
+          Sign Up
+        </Button>
+      </Form>
+    </>
+  );
 };
 
-export default UserFoodForm;
+export default ProjectForm;

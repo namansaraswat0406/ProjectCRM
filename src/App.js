@@ -6,6 +6,7 @@ import Details from './components/detailPage';
 import BasicExample from './components/login';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import SignUp from './components/signUp';
+import ProjectForm from './components/adminDashboard';
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<BasicExample />} />
           <Route path="/dashboard/superadmin" element={<SuperAdminDashboard />} />
-          <Route path="/dashboard/admin" element={<AdminDashboard />} />
+          <Route path="/dashboard/admin" element={<ProjectForm />} />
           <Route path="/dashboard/user" element={<AdminDashboard />} />
           <Route path="/dashboard/admin/detail" element={<Details />} />
           <Route path="/signup" element={<SignUp />} />
