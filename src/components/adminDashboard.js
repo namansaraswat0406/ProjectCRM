@@ -1,122 +1,150 @@
+// FormComponent.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 
-const ProjectForm = () => {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+const FormComponent = () => {
+  const [personData, setPersonData] = useState({
+    first_name: '',
+    last_name: '',
+    address: '',
+    phone_number: '',
+    image_url: '',
+    project_id: '', // Assuming you get the project_id from somewhere
+    user_id: '', // Assuming you get the user_id from somewhere
+  });
+
+  const [projectData, setProjectData] = useState({
     project_name: '',
     food_name: '',
     food_type: '',
     calories: '',
     image_url: '',
-    user_id: '1', // Set a default role
+    user_id: '1', // Assuming you get the user_id from somewhere
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
+  const handlePersonSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // Send a POST request to the /api/users endpoint with the registration data
+      const response = await fetch('http://localhost:3001/api/persons', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(personData),
+      });
+
+      const data = await response.json();
+      console.log('Person submitted:', data);
+    } catch (error) {
+      console.error('Error submitting person:', error);
+    }
+  };
+
+  const handleProjectSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
       const response = await fetch('http://localhost:3001/api/projects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(projectData),
       });
 
-      if (response.ok) {
-        // Registration successful, navigate to login page
-        navigate('/');
-      } else {
-        const data = await response.json();
-        alert(`Registration failed: ${data.error}`);
-      }
+      const data = await response.json();
+      console.log('Project submitted:', data);
     } catch (error) {
-      console.error('Error registering user:', error);
-      alert('Registration failed. Please try again.');
+      console.error('Error submitting project:', error);
     }
   };
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   return (
-    <>
-      <h2>Project Details</h2>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="first_name">
-          <Form.Label>Project Name</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Enter Project name"
-            name="project_name"
-            value={formData.project_name}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+    <div>
+      <h2>Submit Person</h2>
+      <form onSubmit={handlePersonSubmit}>
+        {/* Person form fields */}
+        {/* Example: */}
+        <input
+          type="text"
+          placeholder="First Name"
+          value={personData.first_name}
+          onChange={(e) => setPersonData({ ...personData, first_name: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Last Name"
+          value={personData.last_name}
+          onChange={(e) => setPersonData({ ...personData, last_name: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Address"
+          value={personData.address}
+          onChange={(e) => setPersonData({ ...personData, address: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Phone Number"
+          value={personData.phone_number}
+          onChange={(e) => setPersonData({ ...personData, phone_number: e.target.value })}
+        />
+        <input
+          type="file"
+          placeholder="Image"
+          value={personData.image_url}
+          onChange={(e) => setPersonData({ ...personData, image_url: e.target.value })}
+        />
 
-        <Form.Group controlId="last_name">
-          <Form.Label>Food Name</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Enter Food name"
-            name="food_name"
-            value={formData.food_name}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+        {/* Add more input fields for other person details */}
 
-        <Form.Group controlId="email">
-          <Form.Label>Food Type</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Enter Food Type"
-            name="food_type"
-            value={formData.food_type}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
-        <Form.Group controlId="phone_number">
-          <Form.Label>Calories</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Enter Calories"
-            name="calories"
-            value={formData.calories}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+        <button type="submit">Submit Person</button>
+      </form>
 
-        <Form.Group controlId="password">
-          <Form.Label>Image</Form.Label>
-          <Form.Control
-            type="file"
-            // placeholder="Enter your password"
-            name="image_url"
-            value={formData.image_url}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
-      
+      <h2>Submit Project</h2>
+      <form onSubmit={handleProjectSubmit}>
+        {/* Project form fields */}
+        {/* Example: */}
+        <input
+          type="text"
+          placeholder="Project Name"
+          value={projectData.project_name}
+          onChange={(e) => setProjectData({ ...projectData, project_name: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Food Name"
+          value={projectData.food_name}
+          onChange={(e) => setProjectData({ ...projectData, food_name: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Food Type"
+          value={projectData.food_type}
+          onChange={(e) => setProjectData({ ...projectData, food_type: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Calories"
+          value={projectData.calories}
+          onChange={(e) => setProjectData({ ...projectData, calories: e.target.value })}
+        />
+        <input
+          type="file"
+          placeholder="Image"
+          value={projectData.image_url}
+          onChange={(e) => setProjectData({ ...projectData, image_url: e.target.value })}
+        />
+        {/* Add more input fields for other project details */}
 
-     
-
-        <Button variant="primary" type="submit">
-          Sign Up
-        </Button>
-      </Form>
-    </>
+        <button type="submit">Submit Project</button>
+      </form>
+    </div>
   );
 };
 
-export default ProjectForm;
+export default FormComponent;

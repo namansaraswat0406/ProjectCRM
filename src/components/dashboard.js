@@ -1,84 +1,50 @@
-import { useState, useEffect } from 'react';
-import { Card } from 'react-bootstrap';
-import Button from 'react-bootstrap/Button';
-import { Link } from 'react-router-dom';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Row from 'react-bootstrap/Row';
+// Dashboard.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+// import PersonComponent from './PersonComponent';
+import ProjectComponent from './ProjectComponent';
+import { Row } from 'react-bootstrap';
+import PersonComponent from './PersonComponent';
 
-function SuperAdminDashboard() {
-    const [projects, setProjects] = useState([]);
-    const [validated, setValidated] = useState(false);
+const Dashboard = () => {
+    const [data, setData] = useState({ persons: [], projects: [] });
 
     useEffect(() => {
-        // Fetch project data from the server
-        fetchProjects();
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://localhost:3001/api/persons'); // Adjust the API endpoint
+                setData((prevData) => ({ ...prevData, persons: response.data }));
+
+                const projectResponse = await axios.get('http://localhost:3001/api/projects'); // Adjust the API endpoint
+                setData((prevData) => ({ ...prevData, projects: projectResponse.data }));
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchData();
     }, []);
 
-    const fetchProjects = async () => {
-        try {
-            const response = await fetch('http://localhost:3001/api/projects');
-            if (response.ok) {
-                const projectData = await response.json();
-                setProjects(projectData);
-            } else {
-                console.error('Error fetching projects:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error fetching projects:', error);
-        }
-    };
-
-    const handleSubmit = (event) => {
-        const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-
-        setValidated(true);
-    };
-
     return (
-        <>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-                <div>
-                    <h1 className='mb-5'>Super Admin</h1>
-                    <div>
-                        <Card style={{ width: 'auto' }}>
-                            <Card.Body>
-                                <Card.Title>Dashboard</Card.Title>
-                                <hr></hr>
-                                <div style={{ display: "flex", gap: "60px", fontWeight: "bold" }} >
-                                    <Card.Text>Project</Card.Text>
-                                    <Card.Text>User</Card.Text>
-                                    <Card.Text>Role</Card.Text>
-                                </div>
-                                <hr className='mt-0'></hr>
+        <div>
+            <h1>Dashboard</h1>
 
-                                {projects.map((project) => (
-                                    <div key={project.project_id} style={{ display: "flex", gap: "40px" }}>
-                                        <Card.Text>{project.project_name}</Card.Text>
-                                        <Card.Text>{project.user_name}</Card.Text>
-                                        <Card.Text>{project.role}</Card.Text>
-                                        <Card.Text>
-                                            {/* Use Link to navigate to the details page */}
-                                            <Link to={`/dashboard/admin/detail/${project.project_id}`}>
-                                                <Button>
-                                                    View Details
-                                                </Button>
-                                            </Link>
-                                        </Card.Text>
-                                    </div>
-                                ))}
-                            </Card.Body>
-                        </Card>
-                    </div>
-                </div>
-            </div>
-        </>
+            {/* <div style={{ display: "flex" }}> */}
+            <h2>Person</h2>
+            {/* <Row> */}
+            {data.persons.map((person) => (
+                <PersonComponent key={person.person_id} person={person} />
+            ))}
+            {/* </Row> */}
+            <h2>Projects</h2>
+            {/* <Row> */}
+            {data.projects.map((project) => (
+                <ProjectComponent key={project.project_id} project={project} />
+            ))}
+            {/* </Row> */}
+        </div>
+        // </div>
     );
-}
+};
 
-export default SuperAdminDashboard;
+export default Dashboard;
