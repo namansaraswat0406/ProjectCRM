@@ -1,59 +1,39 @@
--- Create the main database
-CREATE DATABASE my_database;
-
--- Connect to the new database
-\c my_database;
-
--- Create the users table
-CREATE TABLE users (
+-- Create the database
+CREATE DATABASE mydatabase;
+ 
+-- Connect to the database
+\c mydatabase;
+ 
+-- Create the user table
+CREATE TABLE user_table (
     user_id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    age INT,
-    gender VARCHAR(10),
-    address JSONB,
-    phone_number VARCHAR(20),
-    is_verified BOOLEAN,
-    registration_date TIMESTAMP,
-    role VARCHAR(20)
+    password VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL,
+    role VARCHAR(50) NOT NULL
 );
-
--- Create the food tables (one for each user)
-CREATE TABLE user_food_12345 (
-    food_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    ingredients JSONB NOT NULL,
-    calories INT,
-    allergens JSONB,
-    price DECIMAL(8, 2),
-    is_vegetarian BOOLEAN,
-    is_gluten_free BOOLEAN,
-    description TEXT,
-    image_url VARCHAR(255)
+ 
+-- Create the project table
+CREATE TABLE project_table (
+    project_id SERIAL PRIMARY KEY,
+    project_name VARCHAR(100) NOT NULL,
+    food_name VARCHAR(100) NOT NULL,
+    food_type VARCHAR(50) NOT NULL,
+    calories INTEGER NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    user_id INTEGER REFERENCES user_table(user_id) ON DELETE CASCADE
 );
-
--- Repeat the above for each user, replacing 12345 with the respective user_id
-
--- Example for user_id 67890
-CREATE TABLE user_food_67890 (
-    food_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    ingredients JSONB NOT NULL,
-    calories INT,
-    allergens JSONB,
-    price DECIMAL(8, 2),
-    is_vegetarian BOOLEAN,
-    is_gluten_free BOOLEAN,
-    description TEXT,
-    image_url VARCHAR(255)
+ 
+-- Create the person table
+CREATE TABLE person_table (
+    person_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    project_id INTEGER REFERENCES project_table(project_id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES user_table(user_id) ON DELETE CASCADE
 );
-
--- Add foreign key constraint to link food tables to users
-ALTER TABLE user_food_12345 ADD COLUMN user_id INT REFERENCES users(user_id);
-ALTER TABLE user_food_67890 ADD COLUMN user_id INT REFERENCES users(user_id);
-
--- Repeat the above for each user, replacing 12345 and 67890 with the respective user_id

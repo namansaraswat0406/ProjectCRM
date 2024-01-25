@@ -26,24 +26,29 @@ const Dashboard = () => {
     }, []);
 
     return (
-        <div>
+        <div className=''>
             <h1>Dashboard</h1>
+            <div>
+                <div style={{ display: 'flex', justifyContent: "space-around" }}>
+                    <h2>Person</h2>
+                    <h2>Projects</h2>
 
-            {/* <div style={{ display: "flex" }}> */}
-            <h2>Person</h2>
-            {/* <Row> */}
-            {data.persons.map((person) => (
-                <PersonComponent key={person.person_id} person={person} />
-            ))}
-            {/* </Row> */}
-            <h2>Projects</h2>
-            {/* <Row> */}
-            {data.projects.map((project) => (
-                <ProjectComponent key={project.project_id} project={project} />
-            ))}
-            {/* </Row> */}
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-around" }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {data.persons.map((person) => (
+                            <PersonComponent key={person.person_id} person={person} />
+                        ))}
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {data.projects.map((project) => (
+                            <ProjectComponent key={project.project_id} project={project} />
+                        ))}
+                    </div>
+                </div>
+            </div>
         </div>
-        // </div>
     );
 };
 

@@ -16,10 +16,10 @@ const ProjectComponent = ({ project }) => {
                     <ListGroup.Item>Food Name: {project.food_name}</ListGroup.Item>
                     <ListGroup.Item>Calories: {project.calories}</ListGroup.Item>
                 </ListGroup>
-                <Card.Body>
+                {/* <Card.Body>
                     <Card.Link href="#">Card Link</Card.Link>
                     <Card.Link href="#">Another Link</Card.Link>
-                </Card.Body>
+                </Card.Body> */}
             </Card>
             {/* <h3>{project.project_name}</h3>
             <p>Food Name: {project.food_name}</p>

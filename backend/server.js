@@ -29,7 +29,49 @@ app.get('/api/users', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+// GET user details by ID
+app.get('/api/user-details/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const userResult = await pool.query('SELECT * FROM user_table WHERE user_id = $1', [userId]);
+        const projectsResult = await pool.query('SELECT * FROM project_table WHERE user_id = $1', [userId]);
+        const personsResult = await pool.query('SELECT * FROM person_table WHERE user_id = $1', [userId]);
 
+        const userDetails = {
+            user: userResult.rows[0],
+            projects: projectsResult.rows,
+            persons: personsResult.rows,
+        };
+
+        res.json(userDetails);
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+// GET projects by user ID
+app.get('/api/projects/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const result = await pool.query('SELECT * FROM project_table WHERE user_id = $1', [userId]);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching projects:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// GET persons by user ID
+app.get('/api/persons/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const result = await pool.query('SELECT * FROM person_table WHERE user_id = $1', [userId]);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching persons:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 // POST a new user
 app.post('/api/users', async (req, res) => {
     try {

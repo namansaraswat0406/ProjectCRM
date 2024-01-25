@@ -17,10 +17,10 @@ const PersonComponent = ({ person }) => {
                     <ListGroup.Item>Phone Number: {person.phone_number}</ListGroup.Item>
                     {/* <ListGroup.Item><img src={person.image_url} alt="Person" /></ListGroup.Item> */}
                 </ListGroup>
-                <Card.Body>
+                {/* <Card.Body>
                     <Card.Link href="#">Card Link</Card.Link>
                     <Card.Link href="#">Another Link</Card.Link>
-                </Card.Body>
+                </Card.Body> */}
             </Card>
 
         </div>

@@ -46,7 +46,7 @@ const SignUp = () => {
   };
 
   return (
-    <>
+    <div className='container'>
       <h2>Sign Up</h2>
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="first_name">
@@ -108,13 +108,13 @@ const SignUp = () => {
           />
         </Form.Group>
 
-     
+
 
         <Button variant="primary" type="submit">
           Sign Up
         </Button>
       </Form>
-    </>
+    </div>
   );
 };
 

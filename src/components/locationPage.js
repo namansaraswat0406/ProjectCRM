@@ -2,21 +2,42 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
 
 function Login() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const [showModal, setShowModal] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({ ...prevData, [name]: value }));
     };
 
+    const handleLoginSuccess = async (userData) => {
+        const { role } = userData;
+
+        if (role === 'superadmin') {
+            navigate('/dashboard/superadmin');
+        } else if (role === 'admin') {
+            navigate('/dashboard/admin');
+        } else if (role === 'user') {
+            // Show the location modal for users
+            setShowModal(true);
+        } else {
+            alert('Invalid user role');
+        }
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        navigate('/dashboard/user');
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            // Send a POST request to the server's authentication endpoint
             const response = await fetch('http://localhost:3001/api/authenticate', {
                 method: 'POST',
                 headers: {
@@ -26,22 +47,8 @@ function Login() {
             });
 
             if (response.ok) {
-                // Authentication successful, redirect to the appropriate dashboard based on user role
                 const userData = await response.json();
-                const { role } = userData;
-
-                if (role === 'superadmin') {
-                    navigate('/superadmin/dashboard');
-                } else if (role === 'admin') {
-                    navigate('admin/Dashboard');
-                }
-                else if (role === 'user') {
-                    navigate('/dashboard/user');
-                }
-                else {
-                    // Handle other roles or scenarios as needed
-                    alert('Invalid user role');
-                }
+                handleLoginSuccess(userData);
             } else {
                 alert('Invalid credentials');
             }
@@ -52,8 +59,25 @@ function Login() {
     };
 
     const handleSignUp = () => {
-        // Navigate to the signup page
         navigate('/signup');
+    };
+
+    const handleGetLocation = () => {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    alert(`Your location: ${latitude}, ${longitude}`);
+                    handleCloseModal(); // Close the modal after getting the location
+                },
+                (error) => {
+                    console.error('Error getting location:', error);
+                    alert('Error getting your location. Please try again.');
+                }
+            );
+        } else {
+            alert('Geolocation is not supported in your browser.');
+        }
     };
 
     return (
@@ -96,6 +120,25 @@ function Login() {
                     Sign up
                 </Button>
             </Form>
+
+            {/* Location Modal */}
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Get Your Location</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Click the button below to get your current location:</p>
+                    <Button variant="primary" onClick={handleGetLocation}>
+                        Get Location
+                    </Button>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>
+                        Close
+                    </Button>
+                    {/* No need for a continue button, as it will be triggered after getting the location */}
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }
